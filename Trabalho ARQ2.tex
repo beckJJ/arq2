@@ -1,0 +1,161 @@
+\documentclass[conference]{IEEEtran}
+%\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Classifying Superscalar Processors\\
+}
+\author{Bruno G. Vergara, João Pedro F. Pereira, Pedro C. Beck\\
+\textit{Institute of Informatics, Federal University of Rio Grande do Sul - UFRGS - Porto Alegre, Brazil}\\
+00324256 bgvergara@inf.ufrgs.br, 00324521 jpfpereira@inf.ufrgs.br, 00324055 pcbeck@inf.ufrgs.br
+}
+\maketitle
+
+\begin{abstract}
+In this article we will discuss whether processors with a superscalar pipeline can be classified, according to Flynn's taxonomy, as SISD, SIMD, or MIMD.
+
+We will also present our processors, show the SIMD extensions available on each one of them; and compare how a C program is compiled with and without AVX support using the GNU Compiler Collection (GCC).
+\end{abstract}
+
+\begin{IEEEkeywords}
+superscalar pipeline, Flynn's taxonomy
+\end{IEEEkeywords}
+
+\section{Scalar Processors}
+Scalar processors are a class of processors that have an instruction pipeline to implement instruction-level parallelism (ILP). These processors are able to process multiple instructions in parallel, depending on the size of the pipeline, with each instruction starting right after the previous instruction gets into another cycle, with an overlap in their execution.
+
+\subsection{Instruction Pipeline}
+Instruction pipelines are used in scalar processors to be able to execute more instructions per cycle. 
+
+On the MIPS architecture each instruction takes at most 5 cycles to complete, with each clock cycle being: \textit{instruction fetch cycle} (IF), \textit{instruction decode/register fetch cycle} (ID), \textit{execution/effective address cycle} (EX), \textit{memory access} (MEM), and \textit{write-back cycle} (WB).
+The pipeline works such that whenever the first instruction finishes the IF cycle, the second instruction starts its IF cycle; then in the second clock cycle the first two instructions will be executed, the first in the ID cycle and the second in the IF cycle. Then with every next cycle one instruction will begin its execution and after 5 cycles there will be 5 instructions being executed in parallel, as illustrated in Fig. 1.
+
+\begin{figure}[h]
+\centerline{\includegraphics[scale=0.5]{figure1.png}}
+\caption{Example of a 5 stage pipeline.}
+\label{fig}
+\end{figure}
+
+\section{Flynn's Taxonomy}
+The Flynn’s Taxonomy is a classification of computer architectures proposed by Michael J. Flynn, in 1966. It divides computer architectures in four different categories, using the stream concept to categorize the architectures. The concepts used to create these categories are instruction streams and data streams. These concepts originate four different classes of computer architectures: Single Instruction Stream - Single Data Stream (SISD), Single Instruction Stream – Multiple Data Streams (SIMD), Multiple Instruction Streams – Single Data Streams (MISD) and Multiple Instruction Streams – Multiple Data Streams (MIMD).
+\subsection{Single Instruction stream, Single Data stream}
+The SISD category corresponds to uniprocessor machines devoid of parallelism in both the data and the instruction streams. Therefore, SISD machines can only work in a sequential manner, executing one instruction and operating one data stream at a time.
+\subsection{Single Instruction stream, Multiple Data streams}
+The SIMD category represents multiprocessor machines able to operate multiple data streams while executing only one instruction stream. Thus, SIMD architecture enables the performance of operations, such as those which involve vectors and matrix operators, in a parallel way.
+\subsection{Multiple Instruction streams, Single Data stream}
+MISD is a theoretical category with no real-world examples. A MISD processor would have multiple instruction streams operating in a single data stream. In practice, such processors would have to simultaneously write multiple times over the same data, making it hard to do anything meaningful with it.
+\subsection{Multiple Instruction streams, Multiple Data streams}
+MIMD architectures are designed to allow operations in several data and instruction streams, which are accessed through multiple cores or threads in a single processor. Differently from the other categories, MIMD processors operate in asynchronous time.
+
+\section{Superscalar Processors}
+Superscalar processors are a type of scalar processors that are able to simultaneously fetch, decode and execute more than one instruction per clock cycle. These processors use techniques such as parallel instruction decoding, parallel register renaming, speculative execution, and out-of-order execution.
+
+A superscalar processor with dual 5 stage pipelines as the one seen in section I.A. will be able to process 2 instructions in each clock cycle in each of the 5 stages, and after 5 cycles there will be 10 instructions being executed in parallel, as illustrated in Fig. 2.
+
+\begin{figure}[h]
+\centerline{\includegraphics[scale=0.5]{figure2.png}}
+\caption{Example of a superscalar 5 stage pipeline.}
+\label{fig2}
+\end{figure}
+
+\section{Classification of Superscalar Processors}
+There is an ongoing debate on the classification of superscalar processors according to Flynn's Taxonomy. Depending on the characteristics of each superscalar processor, their classification may be different. Since MISD is a theoretical category, pipelined superscalar processors could be placed in one of the three other categories: SISD, SIMD or MIMD.
+
+Some examples of superscalar processors and their classifications according to Flynn's Taxonomy are:
+\subsection{Motorola 68060}
+Motorola 68060 was a superscalar processor from the Motorola 68000 family, featuring a dual four-stage pipeline to decode, fetch and execute instructions. This processor had a single core with no multithreading capabilities, hence a single instruction stream, and it had no SIMD instructions extensions.
+
+Since it has a single instruction stream and no support for multiple data instructions, the Motorola 68060 can be classified as a superscalar SISD processor.
+
+\subsection{Intel Pentium MMX}
+The Pentium MMX was a superscalar processor from Intel. It featured a superscalar architecture with two instruction pipelines, and with the introduction of the MMX instruction set, a SIMD extenstion to the original Intel Pentium, making it possible to process multiple streams of data, this processor was capable of executing SIMD instructions.
+
+Since the Pentium MMX had a single core and lacked any type of multithreading abilities, it had a single instruction stream; but since it had instructions that could process multiple streams of data, this processor could be considered a superscalar SIMD processor.
+
+\subsection{Intel Core i7}
+The Intel Core i7 line of processors are multicore superscalar processors. The desktop versions have four to eight CPU cores and feature hyper-threading, allowing them to have multiple streams of instructions and data occurring at the same time. Since Sandy Bridge, they also support vector processing instructions, capable of performing a single instruction on multiple data streams.
+
+Since there are multiple streams of instructions able to manipulate multiple streams of data, they can be considered superscalar MIMD processors. 
+
+\section{Conclusion}
+As seen in the examples before, despite the fact that they are all superscalar processors, their classification according to Flynn’s Taxonomy varies. The categorization of an architecture depends more on their other characteristics than on the fact of it being superscalar or not. We have examples of SISD, SIMD and MIMD superscalar architectures.
+The most important factors to classify a processor are its capability to manipulate vectors and the existence of multicore or multithreading capabilites.
+
+There is no unique answer to the problem of classifying pipelined superscalar processors. The existence of a superscalar pipeline doesn’t alter the quantity of instruction streams originating from a processor, or the quantity of data streams this processor is operating in.
+
+\section*{Our Processors}
+\subsection{Intel Core i7-8700K}
+The Intel Core i7-8700K is a 64-bit microprocessor from the 8th generation of the Intel Core family. It has 6 cores and 12 threads, and uses the x86 instruction set, that has many SIMD extensions. Some examples of these extensions are:
+\subsubsection{AES-NI}
+According to [11] in page 61, the Intel Advanced Encryption Standard New Instructions (Intel AES-NI) are a set of SIMD instructions that are responsible for implementing fast and secure encryption and decryption of data based on the Advanced Encryption Standard (AES). Those instructions are used for a wide range of applications concerning cryptography, such as operations of encryption/decryption, authentication, random number generation, and authenticated encryption.
+\subsubsection{AVX2}
+As stated in page 65 of [11], the Intel Advanced Vector Extensions 2.0 (Intel AVX2) implements 256-bit integer instructions, floating-point fused multiply add (FMA) instructions, gather operations, and serves as a expansion for the Intel Advanced Vector Extensions (Intel AVX) - which are designed to achieve higher throughput to certain integer and floating point operation.
+\subsubsection{SSE4.2}
+According to [11] in page 12, this processor has the SSE4.2 instruction set extension. Streaming SIMD Extensions 4.2 (SSE4.2) is a set of SIMD instructions designed to, according to [12], improve the performance of various applications, such as video encoders, image processing, 3D games, and string/text processing.
+
+\subsection{IBM PowerPC 970FX}
+The PowerPC 970FX, also known as PowerPC G5, is a 64-bit RISC microprocessor from IBM. It uses the POWER instruction set developed by IBM. Due to having a RISC architecture, it doesn't feature many instruction extensions, but it has SIMD capabilities nevertheless.
+
+The PowerPC 970FX has a Vector Processing Unit (VPU), as seen in page 345 of [10], which is an extension to the PowerPC architecture that adds a 128-bit vector execution unit. This unit allows the simultaneous execution of up to four 32-bit floating operations or sixteen 8-bit fixed-point operations in one instruction.
+
+\section*{Compiling with and without AVX instructions}
+Advanced Vector Extensions, also known as AVX, is a set of instructions available on some Intel processors to optimize operations with vectors.
+
+To show an example of AVX instructions in use, we wrote a simple program that manipulates vectors (Fig. 3.) and compiled with the GNU Compiler Collection (GCC) with and without AVX instructions, using the following commands to extract the assembly code:
+\begin{verbatim}
+gcc -march=native -mavx main.c -o avx.o -O3
+objdump -d avx.o > avx.txt
+
+gcc main.c -o noavx.o
+objdump -d noavx.o > noavx.txt
+\end{verbatim}
+
+\begin{figure}[h]
+\centerline{\includegraphics[scale=0.75]{main.png}}
+\caption{Example program}
+\end{figure}
+
+The assembled code with without AVX instructions are Fig. 4. and Fig. 5., respectively:
+
+
+\begin{figure}[h]
+\centerline{\includegraphics[scale=0.6]{avx.png}}
+\caption{Main compiled with AVX instuctions.}
+\end{figure}
+
+\begin{figure}[h]
+\centerline{\includegraphics[scale=0.6]{noavx.png}}
+\caption{Main compiled without AVX instuctions.}
+\end{figure}
+
+As it can be seen in Fig. 4. and Fig. 5., the main function in the version compiled with AVX instructions (Fig.4.) has way fewer lines of code, due to the AVX optimisations.
+
+The version without AVX instructions needs 32 lines of assembly code to complete the task of multiplying the vectors (from 40149e to 4014e7), while the version with AVX instructions only needs 6 lines (from 403b5e to 403b75) to execute the same task.
+
+This is due to the use of the AVX instructions \texttt{vmovdqa}, used to move aligned packed integer values; and \texttt{vmovaps}, used to move aligned packed single-precision floating-point values.
+
+\begin{thebibliography}{00}
+\bibitem{b1} M. Flynn. (2011). \textit{Flynn's Taxonomy}. In: D. Padua (eds) Encyclopedia of Parallel Computing. Springer, Boston, MA. Retrieved from \textit{https://doi.org/10.1007/978-0-387-09766-4\_2}
+\bibitem{b2} M. J. Flynn. (1966). \textit{Very High-Speed Computing Systems}. In: Proceedings of the IEEE, vol. 54, No. 12, December 1966. pp. 1901--1909.
+\bibitem{b3} R. Oshana. (2016). \textit{Multicore Software Development Techniques - Applications, Tips and Tricks}. Newnes.
+\bibitem{b4} D. A. Patterson and J. L. Hennessy. (2005). \textit{Computer Organization and Design - The Hardware/Software Interface Third Edition}. Elsevier.
+\bibitem{b5} D. A. Patterson and J. L. Hennessy. (2012). \textit{Computer Architecture - A Quantitative Approach Fifth Edition}. Elsevier.
+\bibitem{b6} W. M. Hwu. (2011). \textit{Superscalar Processors}. In: D. Padua (eds) Encyclopedia of Parallel Computing. Springer, Boston, MA. Retrieved from \textit{https://doi.org/10.1007/978-0-387-09766-4\_280}
+\bibitem{b7} A. A. Alipour, A. Aminpour, and E. Ansari. (2018) \textit{Parallel PatchMatch using Open-MP Extension}. Conference: 5th International Conference Electrical engineering and computer With emphasis on native knowledge.
+\bibitem{b8} Motorola. (1994). \textit{M68060 User's Manual - Including the MC68060, MC68LC060, and MC68EC060}. Retrieved from \textit{https://www.nxp.com/docs/en/data-sheet/MC68060UM.pdf}
+\bibitem{b9} Intel. (1997). \textit{Pentium® Processor with MMX™ Technology}. Retrieved from \textit{http://datasheets.chipdb.org/Intel/x86/Pentium\%20MMX/24318504.PDF}
+\bibitem{b10} International Business Machines. (2008). \textit{IBM PowerPC 970FX RISC Microprocessor User's Manual - Version 1.7}. Retrieved from \textit{https://web.archive.org/web/20140522012345/https://www-01.ibm.com/chips/techlib/techlib.nsf/techdocs/DC3D43B729FDAD\\2C00257419006FB955/\$file/970FX\_user\_manual.v1.7.2008MAR14\_pub.pdf}
+\bibitem{b11} Intel. (2021). \textit{8th and 9th Generation Intel® Core™ Processor Families and Intel® Xeon®E Processor Families - Datasheet, Volume 1 of 2}. Retrieved from: \textit{https://www.intel.com/content/www/us/en/products/docs/processors/core/core-technical-resources.html}
+\bibitem{b12} Y. Le. (2008). \textit{Schema Validation with Intel® Streaming SIMD Extensions 4 (Intel® SSE4)}. Retrieved from: \textit{https://software.intel.com/content/www/us/en/develop/articles/schema-validation-with-intel-streaming-simd-extensions-4-intel-sse4.html}
+\bibitem{b13} Oracle. (2014). \textit{x86 Assembly Language Reference Manual}. Retrieved from: \textit{https://docs.oracle.com/cd/E36784\_01/pdf/E36859.pdf}
+\end{thebibliography}
+
+\end{document}
